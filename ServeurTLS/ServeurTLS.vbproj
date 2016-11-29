@@ -47,6 +47,10 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -72,8 +76,14 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Protocol\ClientProtocolReader.vb" />
+    <Compile Include="Protocol\Etudiants.vb" />
+    <Compile Include="Protocol\Exceptions\BadRequestException.vb" />
+    <Compile Include="Protocol\Exceptions\NotFoundException.vb" />
+    <Compile Include="Protocol\ProtocolStatus.vb" />
+    <Compile Include="Protocol\ServerProtocolBuilder.vb" />
+    <Compile Include="Protocol\User.vb" />
     <Compile Include="TLS\AES256.vb" />
-    <Compile Include="TLS\AESKey.vb" />
     <Compile Include="TLS\Connection.vb" />
     <Compile Include="TLS\ConnectionManager.vb" />
     <Compile Include="TLS\CryptoTLS.vb" />
@@ -84,7 +94,6 @@
       <DependentUpon>Form1.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TLS\EtudiantsProtocol\EtudiantsProtocol.vb" />
     <Compile Include="TLS\EtudiantsProtocol\EtudiantsRequest.vb" />
     <Compile Include="TLS\Hash.vb" />
     <Compile Include="TLS\KeyPairChanged.vb" />
@@ -130,7 +139,9 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
