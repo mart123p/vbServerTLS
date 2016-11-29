@@ -25,7 +25,17 @@ Public Class ServerProtocolBuilder
     End Function
 
     Public Function setStudentDirectory(ByVal etudiant() As Etudiants, ByVal status As ProtocolStatus) As String
+        Dim a As New JArray()
+        For i = 0 To etudiant.Length - 1
+            Dim o As New JObject()
+            o.Add("firstName", "")
+            o.Add("lastName", "")
+            o.Add("email", "")
+            o.Add("studyField", "")
+            a.Add(o)
+        Next
 
+        Return status & vbCrLf
     End Function
 
     Public Function setProfile(ByVal status As ProtocolStatus) As String
