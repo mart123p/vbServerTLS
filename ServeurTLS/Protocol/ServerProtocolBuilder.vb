@@ -28,14 +28,14 @@ Public Class ServerProtocolBuilder
         Dim a As New JArray()
         For i = 0 To etudiant.Length - 1
             Dim o As New JObject()
-            o.Add("firstName", "")
-            o.Add("lastName", "")
-            o.Add("email", "")
-            o.Add("studyField", "")
+            o.Add("firstName", etudiant(i).getFirstName)
+            o.Add("lastName", etudiant(i).getLastName)
+            o.Add("email", etudiant(i).getEmail)
+            o.Add("studyField", etudiant(i).getStudyField)
             a.Add(o)
         Next
 
-        Return status & vbCrLf
+        Return status & vbCrLf & a.ToString & vbCrLf
     End Function
 
     Public Function setProfile(ByVal status As ProtocolStatus) As String
