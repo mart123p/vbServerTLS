@@ -83,6 +83,7 @@
     <Compile Include="Protocol\Exceptions\NotFoundException.vb" />
     <Compile Include="Protocol\Server\ProtocolStatus.vb" />
     <Compile Include="Protocol\Server\ServerProtocolBuilder.vb" />
+    <Compile Include="Protocol\Server\UserRequest.vb" />
     <Compile Include="Protocol\User.vb" />
     <Compile Include="TLS\AES256.vb" />
     <Compile Include="TLS\Connection.vb" />
