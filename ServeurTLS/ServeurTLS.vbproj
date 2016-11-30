@@ -76,12 +76,13 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Protocol\ClientProtocolReader.vb" />
+    <Compile Include="Protocol\Client\ClientProtocolReader.vb" />
+    <Compile Include="Protocol\Client\ClientProtocolRequests.vb" />
     <Compile Include="Protocol\Etudiants.vb" />
     <Compile Include="Protocol\Exceptions\BadRequestException.vb" />
     <Compile Include="Protocol\Exceptions\NotFoundException.vb" />
-    <Compile Include="Protocol\ProtocolStatus.vb" />
-    <Compile Include="Protocol\ServerProtocolBuilder.vb" />
+    <Compile Include="Protocol\Server\ProtocolStatus.vb" />
+    <Compile Include="Protocol\Server\ServerProtocolBuilder.vb" />
     <Compile Include="Protocol\User.vb" />
     <Compile Include="TLS\AES256.vb" />
     <Compile Include="TLS\Connection.vb" />
