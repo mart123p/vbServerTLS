@@ -10,12 +10,12 @@ Public Class EtudiantsDB
         End Try
     End Sub
 
-    Public Function setUser(ByVal user As User, ByVal id As Integer, ByVal iv As String) As Boolean
+    Public Function setUser(ByVal user As User, ByVal id As String, ByVal iv As String) As Boolean
         Try
             Dim command As New OleDbCommand()
             command.Connection = connection
             command.CommandText = "INSERT INTO users (mat,firstName,lastName,email,studyField,password,iv,birthday) VALUES(?,?,?,?,?,?,?,?)"
-            command.Parameters.Add("mat", OleDbType.Integer, 4)
+            command.Parameters.Add("mat", OleDbType.VarWChar, 255)
             command.Parameters.Add("firstName", OleDbType.VarWChar, 255)
             command.Parameters.Add("lastName", OleDbType.VarWChar, 255)
             command.Parameters.Add("email", OleDbType.VarWChar, 255)
@@ -42,13 +42,13 @@ Public Class EtudiantsDB
 
     End Function
 
-    Public Function setProfileEmail(ByVal email As String, ByVal id As Integer) As Boolean
+    Public Function setProfileEmail(ByVal email As String, ByVal id As String) As Boolean
         Try
             Dim command As New OleDbCommand()
             command.Connection = connection
             command.CommandText = "UPDATE users SET email= ? WHERE mat = ?"
             command.Parameters.Add("email", OleDbType.VarWChar, 255)
-            command.Parameters.Add("mat", OleDbType.Integer, 4)
+            command.Parameters.Add("mat", OleDbType.VarWChar, 255)
             command.Parameters(0).Value = email
             command.Parameters(1).Value = id
 
@@ -61,13 +61,13 @@ Public Class EtudiantsDB
         End Try
     End Function
 
-    Public Function setProfileStudyField(ByVal studyField As String, ByVal id As Integer) As Boolean
+    Public Function setProfileStudyField(ByVal studyField As String, ByVal id As String) As Boolean
         Try
             Dim command As New OleDbCommand()
             command.Connection = connection
             command.CommandText = "UPDATE users SET studyField = ? WHERE mat = ?"
             command.Parameters.Add("studyField", OleDbType.VarWChar, 255)
-            command.Parameters.Add("mat", OleDbType.Integer, 4)
+            command.Parameters.Add("mat", OleDbType.VarWChar, 255)
             command.Parameters(0).Value = studyField
             command.Parameters(1).Value = id
 
@@ -87,7 +87,7 @@ Public Class EtudiantsDB
             command.CommandText = "UPDATE users SET studyField = ?,iv = ? WHERE mat = ?"
             command.Parameters.Add("studyField", OleDbType.VarWChar, 255)
             command.Parameters.Add("iv", OleDbType.VarWChar, 255)
-            command.Parameters.Add("mat", OleDbType.Integer, 4)
+            command.Parameters.Add("mat", OleDbType.VarWChar, 255)
             command.Parameters(0).Value = password
             command.Parameters(1).Value = iv
             command.Parameters(2).Value = id
@@ -121,7 +121,7 @@ Public Class EtudiantsDB
         End Try
     End Function
 
-    Public Function getConnect(ByVal id As Integer, ByVal password As String) As Boolean
+    Public Function getConnect(ByVal id As String, ByVal password As String) As Boolean
         Try
             'We need to hash the password using the id
             Dim command As New OleDbCommand
@@ -147,12 +147,12 @@ Public Class EtudiantsDB
 
     End Function
 
-    Public Function getIV(ByVal id As Integer) As String
+    Public Function getIV(ByVal id As String) As String
         Try
             Dim command As New OleDbCommand
             command.Connection = connection
             command.CommandText = "SELECT iv WHERE mat = ?"
-            command.Parameters.Add("iv", OleDbType.VarWChar, 255)
+            command.Parameters.Add("id", OleDbType.VarWChar, 255)
             command.Parameters(0).Value = id
 
             Dim r As OleDbDataReader
@@ -192,7 +192,15 @@ Public Class EtudiantsDB
             Dim etudiants As New List(Of Etudiants)
             Dim command As New OleDbCommand()
             command.Connection = connection
-            command.CommandText = "SELECT * FROM users"
+            If studyFields = "" Then
+                command.CommandText = "SELECT * FROM users"
+            Else
+                command.CommandText = "SELECT * FROM users WHERE studyFields = ?"
+                command.Parameters.Add("studyFields", OleDbType.VarWChar, 255)
+                command.Parameters(0).Value = studyFields
+                command.Prepare()
+            End If
+
             Dim r As OleDbDataReader
             r = command.ExecuteReader
             For i = 0 To r.FieldCount - 1
