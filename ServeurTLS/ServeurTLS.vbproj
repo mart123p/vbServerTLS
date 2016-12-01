@@ -76,10 +76,12 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BD\EtudiantsDB.vb" />
     <Compile Include="Protocol\Client\ClientProtocolReader.vb" />
     <Compile Include="Protocol\Client\ClientProtocolRequests.vb" />
     <Compile Include="Protocol\Etudiants.vb" />
     <Compile Include="Protocol\Exceptions\BadRequestException.vb" />
+    <Compile Include="Protocol\Exceptions\DBNotFoundException.vb" />
     <Compile Include="Protocol\Exceptions\NotFoundException.vb" />
     <Compile Include="Protocol\Server\ProtocolStatus.vb" />
     <Compile Include="Protocol\Server\ServerProtocolBuilder.vb" />

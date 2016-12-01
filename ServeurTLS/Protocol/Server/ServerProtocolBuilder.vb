@@ -5,11 +5,11 @@ Public Class ServerProtocolBuilder
     Public Function setInscription(ByVal id As String, ByVal status As ProtocolStatus) As String
         Dim o As New JObject()
         o.Add("id", id)
-        Return status & vbCrLf & o.ToString
+        Return status & " POST /user" & vbCrLf & o.ToString
     End Function
 
     Public Function setConnection(ByVal auth As String, ByVal status As ProtocolStatus) As String
-        Return status & vbCrLf & "AUTH: " & auth & vbCrLf
+        Return status & " CONNECT /" & vbCrLf & "AUTH: " & auth & vbCrLf
     End Function
 
     Public Function setStudyField(ByVal fields() As String, ByVal status As ProtocolStatus) As String
@@ -17,11 +17,11 @@ Public Class ServerProtocolBuilder
         For i = 0 To fields.Length - 1
             a.Add(fields(i))
         Next
-        Return status & vbCrLf & a.ToString & vbCrLf
+        Return status & " GET /studyField" & vbCrLf & a.ToString & vbCrLf
     End Function
 
     Public Function setDisconnect(ByVal status As ProtocolStatus) As String
-        Return status & vbCrLf
+        Return status & " DISCONNECT /" & vbCrLf
     End Function
 
     Public Function setStudentDirectory(ByVal etudiant() As Etudiants, ByVal status As ProtocolStatus) As String
@@ -35,10 +35,10 @@ Public Class ServerProtocolBuilder
             a.Add(o)
         Next
 
-        Return status & vbCrLf & a.ToString & vbCrLf
+        Return status & " GET /students" & vbCrLf & a.ToString & vbCrLf
     End Function
 
     Public Function setProfile(ByVal status As ProtocolStatus) As String
-        Return status & vbCrLf
+        Return status & " PUT /user" & vbCrLf
     End Function
 End Class
