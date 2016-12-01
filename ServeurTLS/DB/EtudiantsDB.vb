@@ -4,7 +4,7 @@ Public Class EtudiantsDB
     Dim connection As OleDbConnection
     Sub New()
         Try
-            connection = New OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=uers.accdb")
+            connection = New OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=db.accdb")
         Catch ex As Exception
             Throw New DBNotFoundException
         End Try
