@@ -1,16 +1,30 @@
 ﻿Imports System.Threading
 Public Class Form1
-    Dim clientRequests As New ClientProtocolReader
+    Dim clientReceiver As ClientReceiver
     Dim crypto As CryptoTLS
     Delegate Sub dLogger(ByVal messsage As String, ByVal ip As String, ByVal port As Integer, ByVal user As String)
+
+    Sub New()
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+        clientReceiver = New ClientReceiver(Me, TextBox1)
+
+
+    End Sub
+
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         Button1.Enabled = False
         'We start the server
         Dim serverThread As New Thread(AddressOf Server)
         serverThread.IsBackground = True
         serverThread.Start()
+    End Sub
 
-
+    Private Sub Form_Closing(sender As Object, e As EventArgs) Handles Me.Closing
+        clientReceiver.dispose()
     End Sub
 
     Private Sub Server()
@@ -33,17 +47,6 @@ Public Class Form1
     End Sub
 
     Private Sub receiver(ByVal etudiantsRequest As EtudiantsRequest)
-        'We Will send an ok to say that everything is fine and to for the client to receive some data
-
-        Try
-            Select Case (clientRequests.getCall(etudiantsRequest.getRequest))
-                Case ClientProtocolRequests.Connection
-                    Invoke(New dLogger(AddressOf logger), "Connection", etudiantsRequest.getIp, etudiantsRequest.getPort, "")
-            End Select
-        Catch ex As NotFoundException
-            Invoke(New dLogger(AddressOf logger), "Invalid request", etudiantsRequest.getIp, etudiantsRequest.getPort, "")
-        End Try
-
-        etudiantsRequest.Send("OK")
+        clientReceiver.read(etudiantsRequest)
     End Sub
 End Class

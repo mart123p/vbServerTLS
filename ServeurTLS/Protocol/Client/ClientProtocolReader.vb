@@ -6,8 +6,8 @@ Public Class ClientProtocolReader
         If requestArray.Length = 2 Then
             If requestArray(0) = "POST /user" Then
                 Try
-                    Dim o As Object = JObject.Parse(requestArray(1))
-                    Dim user As New User(o.firstName, o.lastName, o.email, o.studyField, o.birthday, o.password)
+                    Dim o As JObject = JObject.Parse(requestArray(1))
+                    Dim user As New User(o.GetValue("firstName"), o.GetValue("lastName"), o.GetValue("email"), o.GetValue("studyField"), o.GetValue("birthday"), o.GetValue("password"))
                     Return user
                 Catch ex As Exception
                     Throw New BadRequestException("POST /user" & vbCrLf & "jsonObject")
@@ -44,10 +44,10 @@ Public Class ClientProtocolReader
         If requestArray.Length = 2 Then
             If requestArray(0) = "CONNECT /" Then
                 Try
-                    Dim o As Object = JObject.Parse(requestArray(1))
+                    Dim o As JObject = JObject.Parse(requestArray(1))
                     Dim output(1) As String
-                    output(0) = o.id
-                    output(1) = o.password
+                    output(0) = o.GetValue("id")
+                    output(1) = o.GetValue("password")
                     Return output
                 Catch ex As Exception
                     Throw New BadRequestException("CONNECT /" & vbCrLf & "jsonObject")
@@ -91,9 +91,9 @@ Public Class ClientProtocolReader
                 If requestArray(1).Substring(0, 6) = "AUTH: " Then
                     Dim auth As String = requestArray(1).Replace("AUTH: ", "")
                     Try
-                        Dim o As Object = JObject.Parse(requestArray(2))
+                        Dim o As JObject = JObject.Parse(requestArray(2))
                         Dim dic As New Dictionary(Of String, String)
-                        dic.Add("studyField", o.studyField)
+                        dic.Add("studyField", o.GetValue("studyField"))
 
                         Return New UserRequest(auth, dic)
 
@@ -123,7 +123,9 @@ Public Class ClientProtocolReader
                     Dim auth As String = requestArray(1).Replace("AUTH: ", "")
 
                     Try
+                        'TODO  change here from object to jobject
                         Dim o As Object = JObject.Parse(requestArray(2))
+
                         Dim dic As New Dictionary(Of String, String)
 
                         If checkProperty(o, "email") Then

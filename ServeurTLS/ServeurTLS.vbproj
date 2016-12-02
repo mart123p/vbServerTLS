@@ -15,7 +15,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
@@ -76,6 +76,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.vb" />
     <Compile Include="DB\EtudiantsDB.vb" />
     <Compile Include="Protocol\Client\ClientProtocolReader.vb" />
     <Compile Include="Protocol\Client\ClientProtocolRequests.vb" />
@@ -83,6 +84,8 @@
     <Compile Include="Protocol\Exceptions\BadRequestException.vb" />
     <Compile Include="Protocol\Exceptions\DBNotFoundException.vb" />
     <Compile Include="Protocol\Exceptions\NotFoundException.vb" />
+    <Compile Include="Protocol\Server\AuthManager.vb" />
+    <Compile Include="Protocol\Server\ClientReceiver.vb" />
     <Compile Include="Protocol\Server\ProtocolStatus.vb" />
     <Compile Include="Protocol\Server\ServerProtocolBuilder.vb" />
     <Compile Include="Protocol\Server\UserRequest.vb" />

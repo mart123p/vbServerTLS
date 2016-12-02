@@ -28,6 +28,10 @@ Public Class EtudiantsRequest
         Return port
     End Function
 
+    Public Function getEndPoint() As String
+        Return ip & ":" & port
+    End Function
+
     Public Sub Send(ByVal str As String)
         Dim encrypted As Byte() = crypto.AESEncrypt(str, hostAesKey)
 
