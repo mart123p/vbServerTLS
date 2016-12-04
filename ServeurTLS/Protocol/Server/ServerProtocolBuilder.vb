@@ -17,14 +17,14 @@ Public Class ServerProtocolBuilder
         For i = 0 To fields.Length - 1
             a.Add(fields(i))
         Next
-        Return status & " GET /studyField" & vbCrLf & a.ToString & vbCrLf
+        Return status & " GET /studyField" & vbCrLf & a.ToString.Replace(vbCrLf, "").Replace(vbTab, "") & vbCrLf
     End Function
 
     Public Function setDisconnect(ByVal status As ProtocolStatus) As String
         Return status & " DISCONNECT /" & vbCrLf
     End Function
 
-    Public Function setStudentDirectory(ByVal etudiant() As Etudiants, ByVal status As ProtocolStatus) As String
+    Public Function setStudentDirectory(ByVal etudiant As Etudiants(), ByVal status As ProtocolStatus) As String
         Dim a As New JArray()
         For i = 0 To etudiant.Length - 1
             Dim o As New JObject()
@@ -35,7 +35,7 @@ Public Class ServerProtocolBuilder
             a.Add(o)
         Next
 
-        Return status & " GET /students" & vbCrLf & a.ToString & vbCrLf
+        Return status & " GET /students" & vbCrLf & a.ToString.Replace(vbCrLf, "").Replace(vbTab, "") & vbCrLf
     End Function
 
     Public Function setProfile(ByVal status As ProtocolStatus) As String

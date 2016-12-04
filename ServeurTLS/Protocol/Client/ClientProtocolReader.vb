@@ -7,8 +7,13 @@ Public Class ClientProtocolReader
             If requestArray(0) = "POST /user" Then
                 Try
                     Dim o As JObject = JObject.Parse(requestArray(1))
-                    Dim user As New User(o.GetValue("firstName"), o.GetValue("lastName"), o.GetValue("email"), o.GetValue("studyField"), o.GetValue("birthday"), o.GetValue("password"))
-                    Return user
+                    If Not o.GetValue("firstName").ToString = "" And Not o.GetValue("lastName").ToString = "" And Not o.GetValue("email").ToString = "" And Not o.GetValue("studyField").ToString = "" And Not o.GetValue("birthday").ToString = "" And Not o.GetValue("password").ToString = "" Then
+                        Dim user As New User(o.GetValue("firstName"), o.GetValue("lastName"), o.GetValue("email"), o.GetValue("studyField"), o.GetValue("birthday"), o.GetValue("password"))
+                        Return user
+                    Else
+                        Throw New BadRequestException("POST /user" & vbCrLf & "jsonObject")
+                        Return Nothing
+                    End If
                 Catch ex As Exception
                     Throw New BadRequestException("POST /user" & vbCrLf & "jsonObject")
                     Return Nothing
@@ -67,9 +72,14 @@ Public Class ClientProtocolReader
         Dim requestArray As String() = request.Split(vbCrLf)
         If requestArray.Length = 2 Then
             If requestArray(0) = "DISCONNECT /" Then
-                If requestArray(1).Substring(0, 6) = "AUTH: " Then
-                    Dim auth As String = requestArray(1).Replace("AUTH: ", "")
-                    Return New UserRequest(auth, Nothing)
+                If requestArray(1).Length > 7 Then
+                    If requestArray(1).Substring(1, 6) = "AUTH: " Then
+                        Dim auth As String = requestArray(1).Substring(7)
+                        Return New UserRequest(auth, Nothing)
+                    Else
+                        Throw New BadRequestException("DISCONNECT /" & vbCrLf & "AUTH: token")
+                        Return Nothing
+                    End If
                 Else
                     Throw New BadRequestException("DISCONNECT /" & vbCrLf & "AUTH: token")
                     Return Nothing
@@ -88,19 +98,24 @@ Public Class ClientProtocolReader
         Dim requestArray() As String = request.Split(vbCrLf)
         If requestArray.Length = 3 Then
             If requestArray(0) = "GET /students" Then
-                If requestArray(1).Substring(0, 6) = "AUTH: " Then
-                    Dim auth As String = requestArray(1).Replace("AUTH: ", "")
-                    Try
-                        Dim o As JObject = JObject.Parse(requestArray(2))
-                        Dim dic As New Dictionary(Of String, String)
-                        dic.Add("studyField", o.GetValue("studyField"))
+                If requestArray(1).Length > 7 Then
+                    If requestArray(1).Substring(1, 6) = "AUTH: " Then
+                        Dim auth As String = requestArray(1).Substring(7)
+                        Try
+                            Dim o As JObject = JObject.Parse(requestArray(2))
+                            Dim dic As New Dictionary(Of String, String)
+                            dic.Add("studyField", o.GetValue("studyField"))
 
-                        Return New UserRequest(auth, dic)
+                            Return New UserRequest(auth, dic)
 
-                    Catch ex As Exception
+                        Catch ex As Exception
+                            Throw New BadRequestException("GET /students" & vbCrLf & "AUTH: token" & vbCrLf & "jsonobject")
+                            Return Nothing
+                        End Try
+                    Else
                         Throw New BadRequestException("GET /students" & vbCrLf & "AUTH: token" & vbCrLf & "jsonobject")
                         Return Nothing
-                    End Try
+                    End If
                 Else
                     Throw New BadRequestException("GET /students" & vbCrLf & "AUTH: token" & vbCrLf & "jsonobject")
                     Return Nothing
@@ -119,26 +134,18 @@ Public Class ClientProtocolReader
         Dim requestArray() As String = request.Split(vbCrLf)
         If requestArray.Length = 3 Then
             If requestArray(0) = "PUT /user" Then
-                If requestArray(1).Substring(0, 6) = "AUTH: " Then
-                    Dim auth As String = requestArray(1).Replace("AUTH: ", "")
+                If requestArray(1).Substring(1, 6) = "AUTH: " Then
+                    Dim auth As String = requestArray(1).Substring(7)
 
                     Try
                         'TODO  change here from object to jobject
-                        Dim o As Object = JObject.Parse(requestArray(2))
+                        Dim o As JObject = JObject.Parse(requestArray(2))
 
                         Dim dic As New Dictionary(Of String, String)
 
-                        If checkProperty(o, "email") Then
-                            dic.Add("email", o.email)
-                        End If
-
-                        If checkProperty(o, "password") Then
-                            dic.Add("password", o.password)
-                        End If
-
-                        If checkProperty(o, "studyField") Then
-                            dic.Add("studyField", o.studyField)
-                        End If
+                        dic.Add("email", o.GetValue("email"))
+                        dic.Add("password", o.GetValue("password"))
+                        dic.Add("studyField", o.GetValue("studyField"))
 
                         Return New UserRequest(auth, dic)
 

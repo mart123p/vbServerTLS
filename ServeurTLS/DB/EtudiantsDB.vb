@@ -15,7 +15,7 @@ Public Class EtudiantsDB
         Try
             Dim command As New OleDbCommand()
             command.Connection = connection
-            command.CommandText = "INSERT INTO users (mat,firstName,lastName,email,studyField,password,iv,birthday) VALUES(?,?,?,?,?,?,?,?)"
+            command.CommandText = "INSERT INTO users (mat, firstName, lastName, email, studyField, [password], iv, birthday) VALUES(?,?,?,?,?,?,?,?)"
             command.Parameters.Add("mat", OleDbType.VarWChar, 255)
             command.Parameters.Add("firstName", OleDbType.VarWChar, 255)
             command.Parameters.Add("lastName", OleDbType.VarWChar, 255)
@@ -23,22 +23,24 @@ Public Class EtudiantsDB
             command.Parameters.Add("studyField", OleDbType.VarWChar, 255)
             command.Parameters.Add("password", OleDbType.VarWChar, 255)
             command.Parameters.Add("iv", OleDbType.VarWChar, 255)
-            command.Parameters.Add("birthday", OleDbType.Date, 16)
+            command.Parameters.Add("birthday", OleDbType.Date)
 
+            Dim birthday As Date = Date.Parse(user.getBirthday)
             command.Parameters(0).Value = id
-            command.Parameters(1).Value = user.getFirstName
-            command.Parameters(2).Value = user.getLastName
+            command.Parameters(1).Value = Char.ToUpperInvariant(user.getFirstName(0)) & user.getFirstName.Substring(1)
+            command.Parameters(2).Value = Char.ToUpperInvariant(user.getLastName(0)) & user.getLastName.Substring(1)
             command.Parameters(3).Value = user.getEmail
             command.Parameters(4).Value = user.getStudyField
-            command.Parameters(5).Value = user.getPassword
+            command.Parameters(5).Value = Hash.sha256(Config.hashSalt & iv & user.getPassword)
             command.Parameters(6).Value = iv
-            command.Parameters(7).Value = user.getBirthday
+            command.Parameters(7).Value = birthday
 
             command.Prepare()
             command.ExecuteNonQuery()
             command.Dispose()
             Return True
         Catch ex As Exception
+            MsgBox(ex.ToString)
             Return False
         End Try
 
@@ -88,8 +90,8 @@ Public Class EtudiantsDB
         Try
             Dim command As New OleDbCommand()
             command.Connection = connection
-            command.CommandText = "UPDATE users SET studyField = ?,iv = ? WHERE mat = ?"
-            command.Parameters.Add("studyField", OleDbType.VarWChar, 255)
+            command.CommandText = "UPDATE users SET [password] = ?,iv = ? WHERE mat = ?"
+            command.Parameters.Add("password", OleDbType.VarWChar, 255)
             command.Parameters.Add("iv", OleDbType.VarWChar, 255)
             command.Parameters.Add("mat", OleDbType.VarWChar, 255)
             command.Parameters(0).Value = password
@@ -110,19 +112,21 @@ Public Class EtudiantsDB
         Try
             Dim command As New OleDbCommand()
             command.Connection = connection
-            command.CommandText = "SELECT * FROM studyFields"
+            command.CommandText = "SELECT * FROM studyFields ORDER BY studyFieldName"
 
             Dim r As OleDbDataReader
             r = command.ExecuteReader
             Dim str As New List(Of String)
-            For i = 0 To r.FieldCount - 1
-                r.Read()
+
+            While r.Read()
                 str.Add(r(1))
-            Next
+            End While
+
             r.Close()
             command.Dispose()
             Return str.ToArray
         Catch ex As Exception
+            MsgBox(ex.ToString)
             Return Nothing
         End Try
     End Function
@@ -230,15 +234,16 @@ Public Class EtudiantsDB
     End Function
 
     Public Function getEtudiants(ByVal studyFields As String) As Etudiants()
+        Dim etudiants As New List(Of Etudiants)
         Try
-            Dim etudiants As New List(Of Etudiants)
+
             Dim command As New OleDbCommand()
             command.Connection = connection
             If studyFields = "" Then
-                command.CommandText = "SELECT * FROM users"
+                command.CommandText = "SELECT * FROM users ORDER BY lastName"
             Else
-                command.CommandText = "SELECT * FROM users WHERE studyFields = ?"
-                command.Parameters.Add("studyFields", OleDbType.VarWChar, 255)
+                command.CommandText = "SELECT * FROM users WHERE studyField = ? ORDER BY lastName"
+                command.Parameters.Add("studyField", OleDbType.VarWChar, 255)
                 command.Parameters(0).Value = studyFields
                 command.Prepare()
             End If
@@ -246,14 +251,16 @@ Public Class EtudiantsDB
             Dim r As OleDbDataReader
             r = command.ExecuteReader
             command.Dispose()
-            For i = 0 To r.FieldCount - 1
-                r.Read()
-                etudiants.Add(New Etudiants(r("firstName"), r("lastName"), r("email"), r("studyField")))
-            Next
+            While r.Read()
+                Console.WriteLine("It works! " & r(2))
+                etudiants.Add(New Etudiants(r(2), r(3), r(4), r(5)))
+            End While
             r.Close()
             Return etudiants.ToArray
         Catch ex As Exception
-            Return Nothing
+            MsgBox(ex.ToString)
+            etudiants.Add(New Etudiants("", "", "", ""))
+            Return etudiants.ToArray
         End Try
     End Function
 
