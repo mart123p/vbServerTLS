@@ -6,6 +6,10 @@ Public Class ConnectionManager
         connections.Add(New Connection(socket.RemoteEndPoint.ToString))
     End Sub
 
+    Public Sub Remove(ByRef socket As Socket)
+        connections.Remove(Find(socket))
+    End Sub
+
     Public Function Find(ByRef socket As Socket) As Connection
         Dim socketip As String = socket.RemoteEndPoint.ToString
         For i = 0 To connections.Count - 1

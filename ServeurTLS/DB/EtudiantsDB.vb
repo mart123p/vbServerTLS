@@ -46,6 +46,26 @@ Public Class EtudiantsDB
 
     End Function
 
+    Public Function getUserDetail(ByVal id As String) As Etudiants
+        Try
+            Dim command As New OleDbCommand
+            command.Connection = connection
+            command.CommandText = "SELECT firstName,lastName,email,studyField FROM users WHERE mat = ?"
+            command.Parameters.Add("id", OleDbType.VarWChar, 255)
+            command.Parameters(0).Value = id
+
+            Dim r As OleDbDataReader
+            r = command.ExecuteReader
+            r.Read()
+            command.Dispose()
+            Dim etudiant As New Etudiants(r(0), r(1), r(2), r(3))
+            r.Close()
+            Return etudiant
+        Catch ex As Exception
+            Return Nothing
+        End Try
+    End Function
+
     Public Function setProfileEmail(ByVal email As String, ByVal id As String) As Boolean
         Try
             Dim command As New OleDbCommand()

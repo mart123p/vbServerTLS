@@ -5,4 +5,5 @@
     StudyField
     StudentDirectory
     ModifyProfile
+    GetUserDetails
 End Enum

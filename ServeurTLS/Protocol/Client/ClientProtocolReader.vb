@@ -94,6 +94,33 @@ Public Class ClientProtocolReader
         End If
     End Function
 
+    Public Function getUserDetails(ByVal request As String) As String
+        Dim requestArray() As String = request.Split(vbCrLf)
+        If requestArray.Length = 2 Then
+            If requestArray(0) = "GET /user" Then
+                If requestArray(1).Length > 7 Then
+                    If requestArray(1).Substring(1, 6) = "AUTH: " Then
+                        Dim auth As String = requestArray(1).Substring(7)
+                        Return auth
+                    Else
+                        Throw New BadRequestException("GET /user" & vbCrLf & "AUTH: token")
+                        Return Nothing
+                    End If
+                Else
+                    Throw New BadRequestException("GET /user" & vbCrLf & "AUTH: token")
+                    Return Nothing
+                End If
+
+            Else
+                Throw New BadRequestException("GET /user" & vbCrLf & "AUTH: token")
+                Return Nothing
+            End If
+        Else
+            Throw New BadRequestException("GET /user" & vbCrLf & "AUTH: token")
+            Return Nothing
+        End If
+    End Function
+
     Public Function getStudentDirectory(ByVal request As String) As UserRequest
         Dim requestArray() As String = request.Split(vbCrLf)
         If requestArray.Length = 3 Then
@@ -190,6 +217,8 @@ Public Class ClientProtocolReader
                     Return ClientProtocolRequests.StudentDirectory
                 Case "PUT /user"
                     Return ClientProtocolRequests.ModifyProfile
+                Case "GET /user"
+                    Return ClientProtocolRequests.GetUserDetails
                 Case Else
                     Throw New NotFoundException
                     Return Nothing

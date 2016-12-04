@@ -34,7 +34,6 @@ Public Class CryptoTLS
             HostPrivateKey = rsaProvider.ToXmlString(True)
             HostPublicKey = rsaProvider.ToXmlString(False)
         End If
-        'We generate a new AES key
 
     End Sub
 

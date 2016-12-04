@@ -180,6 +180,15 @@ Public Class ClientReceiver
                     request.Send(protocolBuilder.setStudyField(db.getStudyFields, ProtocolStatus.OK))
                     gui.Invoke(New dLogger(AddressOf logger), "Studyfield show all", request.getIp, request.getPort, "")
 
+                Case ClientProtocolRequests.GetUserDetails
+                    If authManager.validate(request.getEndPoint, protocolReader.getUserDetails(request.getRequest)) Then
+                        request.Send(protocolBuilder.setUserDetails(db.getUserDetail(authManager.getId(request.getEndPoint)), ProtocolStatus.OK))
+                        gui.Invoke(New dLogger(AddressOf logger), "Get user details", request.getIp, request.getPort, authManager.getId(request.getEndPoint))
+                    Else
+                        request.Send(ProtocolStatus.UNAUTHORIZED & " GET /user")
+                        gui.Invoke(New dLogger(AddressOf logger), "Get user details bad auth token", request.getIp, request.getPort, "")
+                    End If
+
 
             End Select
         Catch ex As BadRequestException

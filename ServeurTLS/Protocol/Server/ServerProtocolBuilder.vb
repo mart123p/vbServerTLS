@@ -9,7 +9,7 @@ Public Class ServerProtocolBuilder
     End Function
 
     Public Function setConnection(ByVal auth As String, ByVal status As ProtocolStatus) As String
-        Return status & " CONNECT /" & vbCrLf & "AUTH: " & auth & vbCrLf
+        Return status & " CONNECT /" & vbCrLf & "AUTH: " & auth
     End Function
 
     Public Function setStudyField(ByVal fields() As String, ByVal status As ProtocolStatus) As String
@@ -17,11 +17,20 @@ Public Class ServerProtocolBuilder
         For i = 0 To fields.Length - 1
             a.Add(fields(i))
         Next
-        Return status & " GET /studyField" & vbCrLf & a.ToString.Replace(vbCrLf, "").Replace(vbTab, "") & vbCrLf
+        Return status & " GET /studyField" & vbCrLf & a.ToString.Replace(vbCrLf, "").Replace(vbTab, "")
+    End Function
+
+    Public Function setUserDetails(ByVal etudiant As Etudiants, ByVal status As ProtocolStatus) As String
+        Dim o As New JObject()
+        o.Add("firstName", etudiant.getFirstName)
+        o.Add("lastName", etudiant.getLastName)
+        o.Add("email", etudiant.getEmail)
+        o.Add("studyField", etudiant.getStudyField)
+        Return status & " GET /user" & vbCrLf & o.ToString.Replace(vbCrLf, "").Replace(vbTab, "")
     End Function
 
     Public Function setDisconnect(ByVal status As ProtocolStatus) As String
-        Return status & " DISCONNECT /" & vbCrLf
+        Return status & " DISCONNECT /"
     End Function
 
     Public Function setStudentDirectory(ByVal etudiant As Etudiants(), ByVal status As ProtocolStatus) As String
@@ -35,10 +44,10 @@ Public Class ServerProtocolBuilder
             a.Add(o)
         Next
 
-        Return status & " GET /students" & vbCrLf & a.ToString.Replace(vbCrLf, "").Replace(vbTab, "") & vbCrLf
+        Return status & " GET /students" & vbCrLf & a.ToString.Replace(vbCrLf, "").Replace(vbTab, "")
     End Function
 
     Public Function setProfile(ByVal status As ProtocolStatus) As String
-        Return status & " PUT /user" & vbCrLf
+        Return status & " PUT /user"
     End Function
 End Class
