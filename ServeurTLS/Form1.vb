@@ -1,4 +1,5 @@
-﻿Imports System.Threading
+﻿Imports System.Net
+Imports System.Threading
 Public Class Form1
     Dim clientReceiver As ClientReceiver
     Dim crypto As CryptoTLS
@@ -30,8 +31,8 @@ Public Class Form1
 
     Private Sub Server()
         crypto = New CryptoTLS(True)
-        Invoke(New dLogger(AddressOf logger), "Server started", "127.0.0.1", 5000, "Me")
-        Dim socket As New SocketTLS(SocketTLSType.Server, crypto, "127.0.0.1", 5000, AddressOf receiver, AddressOf onConnect, AddressOf onDisconnect)
+        Invoke(New dLogger(AddressOf logger), "Server started", "*", 5000, "Me")
+        Dim socket As New SocketTLS(SocketTLSType.Server, crypto, IPAddress.Any.ToString, 5000, AddressOf receiver, AddressOf onConnect, AddressOf onDisconnect)
     End Sub
 
     Private Sub onDisconnect(ByVal endPoint As String)

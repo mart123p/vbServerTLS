@@ -65,45 +65,63 @@ Public Class ClientReceiver
 
                 Case ClientProtocolRequests.ModifyProfile
                     Dim userRequest As UserRequest = protocolReader.getModifyProfile(request.getRequest)
-
+                    Dim requestIsValid As Boolean = False
                     If authManager.validate(request.getEndPoint, userRequest.getAuth) Then
                         If userRequest.getParameters("email") <> "" Then
                             Try
                                 Dim email As New Net.Mail.MailAddress(userRequest.getParameters("email"))
                                 If Not db.userExists(userRequest.getParameters("email")) Then
-                                    db.setProfileEmail(userRequest.getParameters("email"), authManager.getId(request.getEndPoint))
-                                    request.Send(ProtocolStatus.OK & " PUT /user")
-                                    gui.Invoke(New dLogger(AddressOf logger), "Email changed successfully", request.getIp, request.getPort, authManager.getId(request.getEndPoint))
+                                    requestIsValid = True
                                 Else
-                                    request.Send(ProtocolStatus.CONFLICT & " PUT /user")
+                                    requestIsValid = False
                                     gui.Invoke(New dLogger(AddressOf logger), "Cannot change email address, email already in db", request.getIp, request.getPort, authManager.getId(request.getEndPoint))
                                 End If
-
-
                             Catch ex As Exception
                                 Throw New BadRequestException("")
                             End Try
-                        ElseIf userRequest.getParameters("password") <> "" Then
+
+                        End If
+
+                        If userRequest.getParameters("password") <> "" Then
+                            requestIsValid = True
+                        End If
+
+                        If userRequest.getParameters("studyField") <> "" Then
+                            Dim studyFields As String() = db.getStudyFields()
+                            If studyFields.Contains(userRequest.getParameters("studyField")) Then
+                                requestIsValid = True
+                            Else
+                                requestIsValid = False
+                                Throw New BadRequestException("")
+                            End If
+                        End If
+                    Else
+                        requestIsValid = False
+                    End If
+
+                    If requestIsValid Then
+                        If userRequest.getParameters("studyField") <> "" Then
+                            db.setProfileStudyField(userRequest.getParameters("studyField"), authManager.getId(request.getEndPoint))
+                            gui.Invoke(New dLogger(AddressOf logger), "StudyField changed successfully", request.getIp, request.getPort, authManager.getId(request.getEndPoint))
+
+                        End If
+
+                        If userRequest.getParameters("password") <> "" Then
                             Dim rngCsp As New RNGCryptoServiceProvider()
                             Dim iv(15) As Byte
                             rngCsp.GetBytes(iv)
                             db.setProfilePassword(Hash.sha256(Config.hashSalt & Convert.ToBase64String(iv) & userRequest.getParameters("password")), Convert.ToBase64String(iv), authManager.getId(request.getEndPoint))
-                            request.Send(ProtocolStatus.OK & " PUT /user")
                             gui.Invoke(New dLogger(AddressOf logger), "Password changed successfully", request.getIp, request.getPort, authManager.getId(request.getEndPoint))
 
-                        ElseIf userRequest.getParameters("studyField") <> "" Then
-                            Dim studyFields As String() = db.getStudyFields()
-                            If studyFields.Contains(userRequest.getParameters("studyField")) Then
-                                db.setProfileStudyField(userRequest.getParameters("studyField"), authManager.getId(request.getEndPoint))
-                                request.Send(ProtocolStatus.OK & " PUT /user")
-                                gui.Invoke(New dLogger(AddressOf logger), "StudyField changed successfully", request.getIp, request.getPort, authManager.getId(request.getEndPoint))
-                            Else
-                                Throw New BadRequestException("")
-                            End If
-                        Else
-                            Throw New BadRequestException("")
                         End If
+
+                        If userRequest.getParameters("email") <> "" Then
+                            db.setProfileEmail(userRequest.getParameters("email"), authManager.getId(request.getEndPoint))
+                            gui.Invoke(New dLogger(AddressOf logger), "Email changed successfully", request.getIp, request.getPort, authManager.getId(request.getEndPoint))
                         End If
+
+                        request.Send(ProtocolStatus.OK & " PUT /user")
+                    End If
 
 
                 Case ClientProtocolRequests.SignUp
