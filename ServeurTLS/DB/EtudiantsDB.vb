@@ -46,11 +46,11 @@ Public Class EtudiantsDB
 
     End Function
 
-    Public Function getUserDetail(ByVal id As String) As Etudiants
+    Public Function getUserDetail(ByVal id As String) As User
         Try
             Dim command As New OleDbCommand
             command.Connection = connection
-            command.CommandText = "SELECT firstName,lastName,email,studyField FROM users WHERE mat = ?"
+            command.CommandText = "SELECT firstName,lastName,birthday,mat,email,studyField FROM users WHERE mat = ?"
             command.Parameters.Add("id", OleDbType.VarWChar, 255)
             command.Parameters(0).Value = id
 
@@ -58,9 +58,10 @@ Public Class EtudiantsDB
             r = command.ExecuteReader
             r.Read()
             command.Dispose()
-            Dim etudiant As New Etudiants(r(0), r(1), r(2), r(3))
+            Dim user As New User(r(0), r(1), r(4), r(5), r(2), "")
+            user.setMat(r(3))
             r.Close()
-            Return etudiant
+            Return user
         Catch ex As Exception
             Return Nothing
         End Try

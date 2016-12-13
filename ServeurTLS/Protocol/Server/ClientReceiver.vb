@@ -66,6 +66,7 @@ Public Class ClientReceiver
                 Case ClientProtocolRequests.ModifyProfile
                     Dim userRequest As UserRequest = protocolReader.getModifyProfile(request.getRequest)
                     Dim requestIsValid As Boolean = False
+                    Dim status As ProtocolStatus = ProtocolStatus.OK
                     If authManager.validate(request.getEndPoint, userRequest.getAuth) Then
                         If userRequest.getParameters("email") <> "" Then
                             Try
@@ -74,7 +75,9 @@ Public Class ClientReceiver
                                     requestIsValid = True
                                 Else
                                     requestIsValid = False
+                                    status = ProtocolStatus.CONFLICT
                                     gui.Invoke(New dLogger(AddressOf logger), "Cannot change email address, email already in db", request.getIp, request.getPort, authManager.getId(request.getEndPoint))
+
                                 End If
                             Catch ex As Exception
                                 Throw New BadRequestException("")
@@ -91,15 +94,17 @@ Public Class ClientReceiver
                             If studyFields.Contains(userRequest.getParameters("studyField")) Then
                                 requestIsValid = True
                             Else
+                                status = ProtocolStatus.BAD_REQUEST
                                 requestIsValid = False
                                 Throw New BadRequestException("")
                             End If
                         End If
                     Else
+                        status = ProtocolStatus.UNAUTHORIZED
                         requestIsValid = False
                     End If
 
-                    If requestIsValid Then
+                    If requestIsValid And status = ProtocolStatus.OK Then
                         If userRequest.getParameters("studyField") <> "" Then
                             db.setProfileStudyField(userRequest.getParameters("studyField"), authManager.getId(request.getEndPoint))
                             gui.Invoke(New dLogger(AddressOf logger), "StudyField changed successfully", request.getIp, request.getPort, authManager.getId(request.getEndPoint))
@@ -119,8 +124,9 @@ Public Class ClientReceiver
                             db.setProfileEmail(userRequest.getParameters("email"), authManager.getId(request.getEndPoint))
                             gui.Invoke(New dLogger(AddressOf logger), "Email changed successfully", request.getIp, request.getPort, authManager.getId(request.getEndPoint))
                         End If
-
                         request.Send(ProtocolStatus.OK & " PUT /user")
+                    Else
+                        request.Send(status & " PUT /user")
                     End If
 
 
@@ -140,23 +146,26 @@ Public Class ClientReceiver
 
                                 Try
                                     Dim birthday As Date = Date.Parse(newUser.getBirthday)
-                                    Dim id As String = newUser.getLastName.Substring(0, 3) & newUser.getFirstName.Substring(0, 3) & birthday.Year
+                                    Dim id As String = newUser.getLastName.Substring(0, 3) & newUser.getFirstName.Substring(0, 3) & birthday.Year & 0
                                     id = id.ToLower
-                                    If Not db.userExistsMat(id) Then
-                                        Dim rngCsp As New RNGCryptoServiceProvider()
+                                    Dim i As Integer = 1
+                                    While db.userExistsMat(id)
+                                        id = newUser.getLastName.Substring(0, 3) & newUser.getFirstName.Substring(0, 3) & birthday.Year & i
+                                        id = id.ToLower
+                                        i += 1
+                                    End While
+
+
+                                    Dim rngCsp As New RNGCryptoServiceProvider()
                                         Dim iv(15) As Byte
                                         rngCsp.GetBytes(iv)
 
-                                        If db.setUser(newUser, id, Convert.ToBase64String(iv)) Then
-                                            Dim o As New JObject()
-                                            o.Add("id", id)
-                                            request.Send(ProtocolStatus.OK & " POST /user" & vbCrLf & o.ToString.Replace(vbCrLf, "").Replace(vbTab, ""))
-                                            gui.Invoke(New dLogger(AddressOf logger), "User creation successfully completed", request.getIp, request.getPort, "")
+                                    If db.setUser(newUser, id, Convert.ToBase64String(iv)) Then
+                                        Dim o As New JObject()
+                                        o.Add("id", id)
+                                        request.Send(ProtocolStatus.OK & " POST /user" & vbCrLf & o.ToString.Replace(vbCrLf, "").Replace(vbTab, ""))
+                                        gui.Invoke(New dLogger(AddressOf logger), "User creation successfully completed", request.getIp, request.getPort, "")
 
-                                        Else
-                                            request.Send(ProtocolStatus.CONFLICT & " POST /user")
-                                            gui.Invoke(New dLogger(AddressOf logger), "User creation a user already exists with the same id", request.getIp, request.getPort, "")
-                                        End If
                                     Else
                                         request.Send(ProtocolStatus.CONFLICT & " POST /user")
                                         gui.Invoke(New dLogger(AddressOf logger), "User creation a user already exists with the same id", request.getIp, request.getPort, "")

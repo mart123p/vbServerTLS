@@ -20,12 +20,14 @@ Public Class ServerProtocolBuilder
         Return status & " GET /studyField" & vbCrLf & a.ToString.Replace(vbCrLf, "").Replace(vbTab, "")
     End Function
 
-    Public Function setUserDetails(ByVal etudiant As Etudiants, ByVal status As ProtocolStatus) As String
+    Public Function setUserDetails(ByVal user As User, ByVal status As ProtocolStatus) As String
         Dim o As New JObject()
-        o.Add("firstName", etudiant.getFirstName)
-        o.Add("lastName", etudiant.getLastName)
-        o.Add("email", etudiant.getEmail)
-        o.Add("studyField", etudiant.getStudyField)
+        o.Add("firstName", user.getFirstName)
+        o.Add("lastName", user.getLastName)
+        o.Add("email", user.getEmail)
+        o.Add("studyField", user.getStudyField)
+        o.Add("id", user.getMat)
+        o.Add("birthday", user.getBirthday)
         Return status & " GET /user" & vbCrLf & o.ToString.Replace(vbCrLf, "").Replace(vbTab, "")
     End Function
 
