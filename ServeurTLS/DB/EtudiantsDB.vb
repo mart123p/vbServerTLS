@@ -273,7 +273,6 @@ Public Class EtudiantsDB
             r = command.ExecuteReader
             command.Dispose()
             While r.Read()
-                Console.WriteLine("It works! " & r(2))
                 etudiants.Add(New Etudiants(r(2), r(3), r(4), r(5)))
             End While
             r.Close()
